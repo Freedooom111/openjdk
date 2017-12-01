@@ -602,7 +602,9 @@ AC_DEFUN_ONCE([TOOLCHAIN_DETECT_TOOLCHAIN_CORE],
     fi
   else
     # FIXME: is this correct for microsoft?
+    if test -z "$(AS)"; then
     AS="$CC -c"
+    fi
   fi
   AC_SUBST(AS)
 

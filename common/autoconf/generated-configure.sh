@@ -37866,7 +37866,9 @@ $as_echo "$as_me: Rewriting AS to \"$new_complete\"" >&6;}
     fi
   else
     # FIXME: is this correct for microsoft?
+    if test -z "$AS"; then
     AS="$CC -c"
+    fi
   fi
 
 
@@ -49378,6 +49380,7 @@ $as_echo "no" >&6; }
   # FIXME: should this really be per platform, or should it be per toolchain type?
   # strip is not provided by clang or solstudio; so guessing platform makes most sense.
   # FIXME: we should really only export STRIPFLAGS from here, not POST_STRIP_CMD.
+  if test -z "$ANDROID_PORTS"; then
   if test "x$OPENJDK_TARGET_OS" = xlinux; then
     STRIPFLAGS="-g"
   elif test "x$OPENJDK_TARGET_OS" = xsolaris; then
@@ -49386,6 +49389,7 @@ $as_echo "no" >&6; }
     STRIPFLAGS="-S"
   elif test "x$OPENJDK_TARGET_OS" = xaix; then
     STRIPFLAGS="-X32_64"
+  fi
   fi
 
 
