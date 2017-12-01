@@ -71,7 +71,9 @@
 # include <pwd.h>
 # include <poll.h>
 # include <ucontext.h>
+#ifndef ANDROID
 # include <fpu_control.h>
+#endif
 # include <asm/ptrace.h>
 
 #define SPELL_REG_SP  "sp"

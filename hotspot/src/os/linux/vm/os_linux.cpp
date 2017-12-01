@@ -96,7 +96,11 @@
 # include <semaphore.h>
 # include <fcntl.h>
 # include <string.h>
+#ifdef ANDROID
+# include <sys/syscall.h>
+#else
 # include <syscall.h>
+#endif
 # include <sys/sysinfo.h>
 # include <gnu/libc-version.h>
 # include <sys/ipc.h>
