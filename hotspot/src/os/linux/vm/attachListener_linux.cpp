@@ -39,6 +39,16 @@
 #define UNIX_PATH_MAX   sizeof(((struct sockaddr_un *)0)->sun_path)
 #endif
 
+#ifdef ANDROID
+#ifndef S_IWRITE
+#define S_IWRITE S_IWUSR
+#endif
+
+#ifndef S_IREAD
+#define S_IREAD S_IRUSR
+#endif
+#endif
+
 // The attach mechanism on Linux uses a UNIX domain socket. An attach listener
 // thread is created at startup or is created on-demand via a signal from
 // the client tool. The attach listener creates a socket and binds it to a file
