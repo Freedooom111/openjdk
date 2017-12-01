@@ -135,23 +135,23 @@ else
 	$(RM) $(@)
         # Now check for other permutations
         ifeq ($(call check-jvm-variant, server), true)
-	  $(PRINTF) "-server KNOWN\n">>$(@)
-	  $(PRINTF) "-client ALIASED_TO -server\n">>$(@)
+	  $(ECHO) "-server KNOWN">>$(@)
+	  $(ECHO) "-client ALIASED_TO -server">>$(@)
           ifeq ($(call check-jvm-variant, minimal), true)
-	    $(PRINTF) "-minimal KNOWN\n">>$(@)
+	    $(ECHO) "-minimal KNOWN">>$(@)
           endif
         else
           ifeq ($(call check-jvm-variant, client), true)
-	    $(PRINTF) "-client KNOWN\n">>$(@)
-	    $(PRINTF) "-server ALIASED_TO -client\n">>$(@)
+	    $(ECHO) "-client KNOWN">>$(@)
+	    $(ECHO) "-server ALIASED_TO -client">>$(@)
             ifeq ($(call check-jvm-variant, minimal), true)
-	      $(PRINTF) "-minimal KNOWN\n">>$(@)
+	      $(ECHO) "-minimal KNOWN">>$(@)
             endif
           else
             ifeq ($(call check-jvm-variant, minimal), true)
-	      $(PRINTF) "-minimal KNOWN\n">>$(@)
-	      $(PRINTF) "-server ALIASED_TO -minimal\n">>$(@)
-	      $(PRINTF) "-client ALIASED_TO -minimal\n">>$(@)
+	      $(ECHO) "-minimal KNOWN">>$(@)
+	      $(ECHO) "-server ALIASED_TO -minimal">>$(@)
+	      $(ECHO) "-client ALIASED_TO -minimal">>$(@)
             endif
           endif
         endif
