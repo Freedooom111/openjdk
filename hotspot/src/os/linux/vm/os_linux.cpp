@@ -102,13 +102,19 @@
 # include <syscall.h>
 #endif
 # include <sys/sysinfo.h>
+#ifndef ANDROID
 # include <gnu/libc-version.h>
+#endif
 # include <sys/ipc.h>
 # include <sys/shm.h>
 # include <link.h>
 # include <stdint.h>
 # include <inttypes.h>
 # include <sys/ioctl.h>
+#ifdef ANDROID
+#include <linux/shm.h>
+#include <asm-generic/shmparam.h>
+#endif
 
 #ifndef _GNU_SOURCE
   #define _GNU_SOURCE
@@ -132,6 +138,15 @@
 #define ALL_64_BITS CONST64(0xFFFFFFFFFFFFFFFF)
 
 #define LARGEPAGES_BIT (1 << 6)
+
+#ifdef ANDROID
+#ifndef S_IWRITE
+#define S_IWRITE S_IWUSR
+#endif
+#ifndef S_IREAD
+#define S_IREAD S_IRUSR
+#endif
+#endif
 ////////////////////////////////////////////////////////////////////////////////
 // global variables
 julong os::Linux::_physical_memory = 0;
@@ -500,6 +515,7 @@ void os::Linux::hotspot_sigmask(Thread* thread) {
 // detecting pthread library
 
 void os::Linux::libpthread_init() {
+#ifndef ANDROID
   // Save glibc and pthread version strings.
 #if !defined(_CS_GNU_LIBC_VERSION) || \
     !defined(_CS_GNU_LIBPTHREAD_VERSION)
@@ -517,6 +533,7 @@ void os::Linux::libpthread_init() {
   str = (char *)malloc(n, mtInternal);
   confstr(_CS_GNU_LIBPTHREAD_VERSION, str, n);
   os::Linux::set_libpthread_version(str);
+#endif
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -2813,7 +2830,11 @@ extern "C" JNIEXPORT void numa_error(char *where) { }
 // If we are running with earlier version, which did not have symbol versions,
 // we should use the base version.
 void* os::Linux::libnuma_dlsym(void* handle, const char *name) {
+#ifdef ANDROID
+  void *f = NULL;
+#else
   void *f = dlvsym(handle, name, "libnuma_1.1");
+#endif
   if (f == NULL) {
     f = dlsym(handle, name);
   }
@@ -5475,7 +5496,11 @@ bool os::is_thread_cpu_time_supported() {
 // Linux doesn't yet have a (official) notion of processor sets,
 // so just return the system wide load average.
 int os::loadavg(double loadavg[], int nelem) {
+#ifdef ANDROID
+  return -1;
+#else
   return ::getloadavg(loadavg, nelem);
+#endif
 }
 
 void os::pause() {
@@ -6198,7 +6223,12 @@ static inline struct timespec get_mtime(const char* filename) {
   struct stat st;
   int ret = os::stat(filename, &st);
   assert(ret == 0, "failed to stat() file '%s': %s", filename, strerror(errno));
+#ifdef ANDROID
+  timespec ts = { st.st_mtime, st.st_mtime_nsec };
+  return ts;
+#else
   return st.st_mtim;
+#endif
 }
 
 int os::compare_file_modified_times(const char* file1, const char* file2) {
