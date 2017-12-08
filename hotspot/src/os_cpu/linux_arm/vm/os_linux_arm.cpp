@@ -84,8 +84,13 @@
 #endif
 
 address os::current_stack_pointer() {
+#ifdef ANDROID
+  void* sp = NULL;
+  return (address) &sp;
+#else
   register address sp __asm__ (SPELL_REG_SP);
   return sp;
+#endif
 }
 
 char* os::non_memory_address_word() {

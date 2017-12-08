@@ -57,6 +57,10 @@ else
   JVM_EXCLUDES += shark
 endif
 
+ifeq ($(ANDROID_PORTS),1)
+  JVM_LIBS_FEATURES += $(OPENJDK_CXX_LIBS)
+endif
+
 ifeq ($(call check-jvm-feature, minimal), true)
   JVM_CFLAGS_FEATURES += -DMINIMAL_JVM -DVMTYPE=\"Minimal\"
   ifeq ($(OPENJDK_TARGET_OS), linux)

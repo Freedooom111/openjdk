@@ -33,6 +33,33 @@
 #include "libproc_impl.h"
 #include "salibelf.h"
 
+#ifdef ANDROID
+// copy from linux/elfcore.h to avoid conflicting types
+struct elf_siginfo
+{
+ int si_signo;
+ int si_code;
+ int si_errno;
+};
+struct elf_prstatus
+{
+ struct elf_siginfo pr_info;
+ short pr_cursig;
+ unsigned long pr_sigpend;
+ pid_t pr_pid;
+ pid_t pr_ppid;
+ pid_t pr_pgrp;
+ pid_t pr_sid;
+ struct timeval pr_utime;
+ struct timeval pr_stime;
+ struct timeval pr_cutime;
+ struct timeval pr_cstime;
+ elf_gregset_t pr_reg;
+ int pr_fpvalid;
+};
+typedef struct elf_prstatus prstatus_t;
+#endif
+
 // This file has the libproc implementation to read core files.
 // For live processes, refer to ps_proc.c. Portions of this is adapted
 // /modelled after Solaris libproc.so (in particular Pcore.c)

@@ -515,7 +515,10 @@ void os::Linux::hotspot_sigmask(Thread* thread) {
 // detecting pthread library
 
 void os::Linux::libpthread_init() {
-#ifndef ANDROID
+#ifdef ANDROID
+  os::Linux::set_glibc_version("unknown");
+  os::Linux::set_libpthread_version("unknown");
+#else
   // Save glibc and pthread version strings.
 #if !defined(_CS_GNU_LIBC_VERSION) || \
     !defined(_CS_GNU_LIBPTHREAD_VERSION)

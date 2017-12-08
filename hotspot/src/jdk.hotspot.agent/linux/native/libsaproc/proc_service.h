@@ -27,6 +27,9 @@
 
 #include <stdio.h>
 #include <thread_db.h>
+#ifdef ANDROID
+#include <sys/procfs.h>
+#endif
 
 // Linux does not have the proc service library, though it does provide the
 // thread_db library which can be used to manipulate threads without having
