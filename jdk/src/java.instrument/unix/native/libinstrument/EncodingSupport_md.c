@@ -28,7 +28,9 @@
 #include <string.h>
 #include <ctype.h>
 #include <locale.h>
+#ifndef ANDROID
 #include <langinfo.h>
+#endif
 #include <iconv.h>
 
 /* Routines to convert back and forth between Platform Encoding and UTF-8 */
@@ -69,7 +71,11 @@ utfInitialize(void)
     (void)setlocale(LC_ALL, "");
 
     /* Get the codeset name */
+#ifdef ANDROID
+    codeset = "UTF-8";
+#else
     codeset = (char*)nl_langinfo(CODESET);
+#endif
     if ( codeset == NULL || codeset[0] == 0 ) {
         UTF_DEBUG(("NO codeset returned by nl_langinfo(CODESET)\n"));
         return;

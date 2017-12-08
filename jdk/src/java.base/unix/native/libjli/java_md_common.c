@@ -24,6 +24,12 @@
  */
 #include "java.h"
 
+#ifdef ANDROID
+#ifndef S_IEXEC
+#define S_IEXEC S_IXUSR
+#endif
+#endif
+
 /*
  * Find the last occurrence of a string
  */

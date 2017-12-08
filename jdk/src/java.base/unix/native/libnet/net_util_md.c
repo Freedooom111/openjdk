@@ -54,6 +54,10 @@
 #include "java_net_SocketOptions.h"
 #include "java_net_InetAddress.h"
 
+#ifdef ANDROID
+#include <linux/ipv6_route.h>
+#endif
+
 #if defined(__linux__) && !defined(IPV6_FLOWINFO_SEND)
 #define IPV6_FLOWINFO_SEND      33
 #endif

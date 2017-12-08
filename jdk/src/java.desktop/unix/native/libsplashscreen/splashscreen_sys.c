@@ -37,7 +37,9 @@
 #include <sys/time.h>
 #include <errno.h>
 #include <iconv.h>
+#ifndef ANDROID
 #include <langinfo.h>
+#endif
 #include <locale.h>
 #include <fcntl.h>
 #include <poll.h>
@@ -64,7 +66,11 @@ char* SplashConvertStringAlloc(const char* in, int* size) {
     }
     old_locale = setlocale(LC_ALL, "");
 
+#ifdef ANDROID
+    codeset = "UTF-8";
+#else
     codeset = nl_langinfo(CODESET);
+#endif
     if ( codeset == NULL || codeset[0] == 0 ) {
         goto done;
     }

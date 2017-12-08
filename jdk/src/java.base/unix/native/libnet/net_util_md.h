@@ -30,6 +30,10 @@
 #include <sys/poll.h>
 #include <sys/socket.h>
 
+#ifdef ANDROID
+#include <netinet/in.h>
+#endif
+
 /************************************************************************
  * Macros and constants
  */

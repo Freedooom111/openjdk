@@ -62,6 +62,9 @@ Java_sun_nio_ch_DatagramDispatcher_readv0(JNIEnv *env, jclass clazz,
     ssize_t result = 0;
     struct iovec *iov = (struct iovec *)jlong_to_ptr(address);
     struct msghdr m;
+#ifdef ANDROID
+    long IOV_MAX = sysconf(_SC_IOV_MAX);
+#endif
     if (len > IOV_MAX) {
         len = IOV_MAX;
     }
@@ -101,6 +104,9 @@ Java_sun_nio_ch_DatagramDispatcher_writev0(JNIEnv *env, jclass clazz,
     struct iovec *iov = (struct iovec *)jlong_to_ptr(address);
     struct msghdr m;
     ssize_t result = 0;
+#ifdef ANDROID
+    long IOV_MAX = sysconf(_SC_IOV_MAX);
+#endif
     if (len > IOV_MAX) {
         len = IOV_MAX;
     }

@@ -449,7 +449,9 @@ just_copy_bytes:
 
 #include <iconv.h>
 #include <locale.h>
+#ifndef ANDROID
 #include <langinfo.h>
+#endif
 #include <string.h>
 
 typedef enum {TO_UTF8, FROM_UTF8} conv_direction;
@@ -483,7 +485,11 @@ static int iconvConvert(conv_direction drn, char *bytes, size_t len, char *outpu
         // locale is not initialized, do it now
         if (setlocale(LC_ALL, "") != NULL) {
             // nl_langinfo returns ANSI_X3.4-1968 by default
+#ifdef ANDROID
+            codeset = "UTF-8";
+#else
             codeset = (char*)nl_langinfo(CODESET);
+#endif
         }
 
         if (codeset == NULL) {

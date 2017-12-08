@@ -514,9 +514,15 @@ Java_sun_nio_ch_Net_joinOrDrop4(JNIEnv *env, jobject this, jboolean join, jobjec
         }
 #endif
 
+#ifdef ANDROID
+        mreq_source.imr_multiaddr = htonl(group);
+        mreq_source.imr_sourceaddr = htonl(source);
+        mreq_source.imr_interface = htonl(interf);
+#else
         mreq_source.imr_multiaddr.s_addr = htonl(group);
         mreq_source.imr_sourceaddr.s_addr = htonl(source);
         mreq_source.imr_interface.s_addr = htonl(interf);
+#endif
         opt = (join) ? IP_ADD_SOURCE_MEMBERSHIP : IP_DROP_SOURCE_MEMBERSHIP;
         optval = (void*)&mreq_source;
         optlen = sizeof(mreq_source);
@@ -550,9 +556,15 @@ Java_sun_nio_ch_Net_blockOrUnblock4(JNIEnv *env, jobject this, jboolean block, j
     }
 #endif
 
+#ifdef ANDROID
+    mreq_source.imr_multiaddr = htonl(group);
+    mreq_source.imr_sourceaddr = htonl(source);
+    mreq_source.imr_interface = htonl(interf);
+#else
     mreq_source.imr_multiaddr.s_addr = htonl(group);
     mreq_source.imr_sourceaddr.s_addr = htonl(source);
     mreq_source.imr_interface.s_addr = htonl(interf);
+#endif
 
     n = setsockopt(fdval(env,fdo), IPPROTO_IP, opt,
                    (void*)&mreq_source, sizeof(mreq_source));

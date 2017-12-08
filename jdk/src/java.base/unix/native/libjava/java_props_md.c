@@ -33,7 +33,9 @@
 #error "The macro ARCHPROPNAME has not been defined"
 #endif
 #include <sys/utsname.h>        /* For os_name and os_version */
+#ifndef ANDROID
 #include <langinfo.h>           /* For nl_langinfo */
+#endif
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
@@ -276,7 +278,11 @@ static int ParseLocale(JNIEnv* env, int cat, char ** std_language, char ** std_s
         if (strcmp(p, "ISO8859-15") == 0)
             p = "ISO8859-15";
         else
+#ifdef ANDROID
+            p = "UTF-8";
+#else
             p = nl_langinfo(CODESET);
+#endif
 
         /* Convert the bare "646" used on Solaris to a proper IANA name */
         if (strcmp(p, "646") == 0)
