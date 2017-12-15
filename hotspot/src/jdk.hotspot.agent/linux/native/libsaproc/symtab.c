@@ -50,7 +50,9 @@ typedef struct symtab {
   char *strs;
   size_t num_symbols;
   struct elf_symbol *symbols;
-  struct hsearch_data *hash_table;
+#ifndef ANDROID
+  struct hsearch_data *hash_table; // TODO
+#endif
 } symtab_t;
 
 
@@ -416,8 +418,10 @@ static struct symtab* build_symtab_internal(int fd, const char *filename, bool t
       // to store in the table."
       htab_sz = n*1.25;
 
+#ifndef ANDROID
       symtab->hash_table = (struct hsearch_data*) calloc(1, sizeof(struct hsearch_data));
       rslt = hcreate_r(n, symtab->hash_table);
+#endif
       // guarantee(rslt, "unexpected failure: hcreate_r");
 
       // shdr->sh_link points to the section that contains the actual strings
@@ -432,6 +436,7 @@ static struct symtab* build_symtab_internal(int fd, const char *filename, bool t
       symtab->num_symbols = n;
       symtab->symbols = (struct elf_symbol *)calloc(n , sizeof(struct elf_symbol));
 
+#ifndef ANDROID
       // copy symbols info our symtab and enter them info the hash table
       for (j = 0; j < n; j++, syms++) {
         ENTRY item, *ret;
@@ -463,6 +468,7 @@ static struct symtab* build_symtab_internal(int fd, const char *filename, bool t
         item.data = (void *)&(symtab->symbols[j]);
         hsearch_r(item, ENTER, &ret, symtab->hash_table);
       }
+#endif
     }
   }
 
@@ -536,15 +542,18 @@ void destroy_symtab(struct symtab* symtab) {
   if (!symtab) return;
   if (symtab->strs) free(symtab->strs);
   if (symtab->symbols) free(symtab->symbols);
+#ifndef ANDROID
   if (symtab->hash_table) {
      hdestroy_r(symtab->hash_table);
      free(symtab->hash_table);
   }
+#endif
   free(symtab);
 }
 
 uintptr_t search_symbol(struct symtab* symtab, uintptr_t base,
                       const char *sym_name, int *sym_size) {
+#ifndef ANDROID
   ENTRY item;
   ENTRY* ret = NULL;
 
@@ -565,6 +574,7 @@ uintptr_t search_symbol(struct symtab* symtab, uintptr_t base,
 
 quit:
   free(item.key);
+#endif
   return (uintptr_t) NULL;
 }
 
