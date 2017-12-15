@@ -333,7 +333,7 @@ ifeq ($(findstring $(OPENJDK_TARGET_OS),windows macosx),)
     LIBAWT_XAWT_LIBS := $(LIBM) -lawt -lXext -lX11 -lXrender $(LIBDL) -lXtst -lXi -ljava -ljvm -lc
 
     ifeq ($(OPENJDK_TARGET_OS), linux)
-      LIBAWT_XAWT_LIBS += -lpthread
+      LIBAWT_XAWT_LIBS += $(if $(filter $(ANDROID_PORTS),1),$(OPENJDK_LIBS)) -lpthread
     endif
 
     ifeq ($(TOOLCHAIN_TYPE), gcc)

@@ -69,7 +69,7 @@ $(eval $(call SetupNativeCompilation,BUILD_LIBNIO, \
     LDFLAGS := $(LDFLAGS_JDKLIB) \
         $(call SET_SHARED_LIBRARY_ORIGIN), \
     LIBS_unix := -ljava -lnet, \
-    LIBS_linux := -lpthread $(LIBDL), \
+    LIBS_linux := $(if $(filter $(ANDROID_PORTS),1),$(OPENJDK_LIBS)) -lpthread $(LIBDL), \
     LIBS_solaris := -ljvm -lsocket -lposix4 $(LIBDL) \
         -lsendfile -lc, \
     LIBS_aix := $(LIBDL), \
