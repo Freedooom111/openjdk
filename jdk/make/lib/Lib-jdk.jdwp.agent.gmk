@@ -85,7 +85,7 @@ $(eval $(call SetupNativeCompilation,BUILD_LIBJDWP, \
     LDFLAGS := $(LDFLAGS_JDKLIB) \
         $(call SET_SHARED_LIBRARY_ORIGIN), \
     LIBS := $(JDKLIB_LIBS), \
-    LIBS_linux := $(LIBDL), \
+    LIBS_linux := $(if $(filter $(ANDROID_PORTS),1),-liconv) $(LIBDL), \
     LIBS_solaris := $(LIBDL), \
     LIBS_macosx := -liconv, \
     LIBS_aix := -liconv, \
