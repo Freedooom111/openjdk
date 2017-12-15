@@ -28,7 +28,9 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 #ifdef __linux__
+#ifndef ANDROID
 #include <execinfo.h>
+#endif
 #endif
 
 #include <jvm.h>
@@ -790,6 +792,9 @@ JNIEXPORT jstring JNICALL Java_sun_awt_X11_XToolkit_getEnv
 #ifdef __linux__
 void print_stack(void)
 {
+#ifdef ANDROID
+  fprintf(stderr, "!!!backtrace is not supported!!!"); // TODO
+#else
   void *array[10];
   size_t size;
   char **strings;
@@ -804,6 +809,7 @@ void print_stack(void)
      fprintf (stderr, "%s\n", strings[i]);
 
   free (strings);
+#endif
 }
 #endif
 
