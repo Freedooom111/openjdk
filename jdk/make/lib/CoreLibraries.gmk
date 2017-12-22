@@ -277,7 +277,7 @@ $(eval $(call SetupNativeCompilation,BUILD_LIBJIMAGE, \
         -export:JIMAGE_PackageToModule \
         -export:JIMAGE_FindResource -export:JIMAGE_GetResource \
         -export:JIMAGE_ResourceIterator -export:JIMAGE_ResourcePath, \
-    LIBS_unix := -ljvm -ldl $(LIBCXX), \
+    LIBS_unix := -ljvm -ldl $(LIBCXX) $(if $(filter $(ANDROID_PORTS),1),$(OPENJDK_CXX_LIBS)) , \
     LIBS_solaris := -lc, \
     LIBS_macosx := -lc++, \
     LIBS_windows := jvm.lib, \
