@@ -2323,6 +2323,12 @@ static char saved_jvm_path[MAXPATHLEN] = {0};
 
 // Find the full path to the current module, libjvm.so
 void os::jvm_path(char *buf, jint buflen) {
+#ifdef ANDROID
+  if (::getenv("OPENJDK_JVM_PATH")) {
+    strncpy(saved_jvm_path, ::getenv("OPENJDK_JVM_PATH"), MAXPATHLEN);
+    saved_jvm_path[MAXPATHLEN - 1] = '\0';
+  }
+#endif
   // Error checking.
   if (buflen < MAXPATHLEN) {
     assert(false, "must use a large-enough buffer");
