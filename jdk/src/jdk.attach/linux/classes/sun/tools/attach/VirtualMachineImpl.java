@@ -42,7 +42,7 @@ public class VirtualMachineImpl extends HotSpotVirtualMachine {
     // location is the same for all processes, otherwise the tools
     // will not be able to find all Hotspot processes.
     // Any changes to this needs to be synchronized with HotSpot.
-    private static final String tmpdir = "/tmp";
+    private static final String tmpdir = System.getenv("TMP") != null ? System.getenv("TMP") : "/tmp";
 
     // The patch to the socket file created by the target VM
     String path;
