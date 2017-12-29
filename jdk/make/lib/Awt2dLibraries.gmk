@@ -689,7 +689,7 @@ $(eval $(call SetupNativeCompilation,BUILD_LIBFONTMANAGER, \
     LDFLAGS_macosx := -undefined dynamic_lookup, \
     LIBS := $(BUILD_LIBFONTMANAGER_FONTLIB), \
     LIBS_unix := -lawt -ljava -ljvm $(LIBM) $(LIBCXX), \
-    LIBS_linux := $(if $(filter $(ANDROID_PORTS),1),-lawt_headless) -lc, \
+    LIBS_linux := $(if $(filter $(ANDROID_PORTS),1),-lawt_xawt) -lc, \
     LIBS_solaris := -lawt_headless -lc, \
     LIBS_aix := -lawt_headless,\
     LIBS_windows := $(WIN_JAVA_LIB) advapi32.lib user32.lib gdi32.lib \
@@ -702,7 +702,7 @@ $(eval $(call SetupNativeCompilation,BUILD_LIBFONTMANAGER, \
     OBJECT_DIR := $(SUPPORT_OUTPUTDIR)/native/$(MODULE)/libfontmanager, \
 ))
 
-$(BUILD_LIBFONTMANAGER): $(BUILD_LIBAWT)
+$(BUILD_LIBFONTMANAGER): $(BUILD_LIBAWT) $(if $(filter $(ANDROID_PORTS),1),$(BUILD_LIBAWT_XAWT))
 
 ifneq (, $(findstring $(OPENJDK_TARGET_OS), solaris aix))
   $(BUILD_LIBFONTMANAGER): $(BUILD_LIBAWT_HEADLESS)
