@@ -46,6 +46,19 @@ struct elf_symbol {
   uintptr_t size;
 };
 
+#ifdef ANDROID
+typedef struct entry {
+  char *key;
+  void *data;
+} ENTRY;
+
+struct hsearch_data {
+  ENTRY* base;
+  size_t nmemb;
+  size_t maxmemb;
+};
+#endif
+
 typedef struct symtab {
   char *strs;
   size_t num_symbols;
@@ -58,7 +71,9 @@ typedef struct symtab {
 // should be possible to change this, but in a Java environment there
 // is no obvious place to put a user interface to do it.  Maybe this
 // could be set with an environment variable.
+#ifndef ANDROID
 static const char debug_file_directory[] = "/usr/lib/debug";
+#endif
 
 /* The CRC used in gnu_debuglink, retrieved from
    http://sourceware.org/gdb/current/onlinedocs/gdb/Separate-Debug-Files.html#Separate-Debug-Files. */
@@ -196,6 +211,16 @@ static int open_file_from_debug_link(const char *name,
                                      ELF_EHDR *ehdr,
                                      struct elf_section *scn_cache)
 {
+#ifdef ANDROID
+  static char* debug_file_directory = NULL;
+  if (!debug_file_directory) {
+    if (getenv("TMP")) {
+      debug_file_directory = getenv("TMP");
+    } else {
+      debug_file_directory = "/usr/lib/debug";
+    }
+  }
+#endif
   int debug_fd;
   struct elf_section *debug_link = find_section_by_name(".gnu_debuglink", fd, ehdr,
                                                          scn_cache);
@@ -275,6 +300,16 @@ static struct symtab *build_symtab_from_debug_link(const char *name,
 static char *
 build_id_to_debug_filename (size_t size, unsigned char *data)
 {
+#ifdef ANDROID
+  static char* debug_file_directory = NULL;
+  if (!debug_file_directory) {
+    if (getenv("TMP")) {
+      debug_file_directory = getenv("TMP");
+    } else {
+      debug_file_directory = "/usr/lib/debug";
+    }
+  }
+#endif
   char *filename, *s;
 
   filename = malloc(strlen (debug_file_directory) + (sizeof "/.build-id/" - 1) + 1
@@ -417,7 +452,13 @@ static struct symtab* build_symtab_internal(int fd, const char *filename, bool t
       htab_sz = n*1.25;
 
       symtab->hash_table = (struct hsearch_data*) calloc(1, sizeof(struct hsearch_data));
+#ifdef ANDROID
+      rslt = symtab->hash_table->base = malloc(sizeof(ENTRY) * n);
+      symtab->hash_table->nmemb = 0;
+      symtab->hash_table->maxmemb = n;
+#else
       rslt = hcreate_r(n, symtab->hash_table);
+#endif
       // guarantee(rslt, "unexpected failure: hcreate_r");
 
       // shdr->sh_link points to the section that contains the actual strings
@@ -461,7 +502,21 @@ static struct symtab* build_symtab_internal(int fd, const char *filename, bool t
         symtab->symbols[j].offset = sym_value - baseaddr;
         item.key = sym_name;
         item.data = (void *)&(symtab->symbols[j]);
+#ifdef ANDROID
+        ret = lsearch(item.key, symtab->hash_table->base, symtab->hash_table->nmemb, sizeof(ENTRY), strcmp);
+        if (symtab->hash_table->maxmemb <= symtab->hash_table->nmemb) {
+          void* new_base = malloc(symtab->hash_table->maxmemb * sizeof(ENTRY) * 2);
+          if (new_base) {
+            memcpy(new_base, symtab->hash_table->base, symtab->hash_table->nmemb * sizeof(ENTRY));
+            free(symtab->hash_table->base);
+            symtab->hash_table->base = new_base;
+          } else {
+            symtab->hash_table->nmemb--;
+          }
+        }
+#else
         hsearch_r(item, ENTER, &ret, symtab->hash_table);
+#endif
       }
     }
   }
@@ -537,7 +592,11 @@ void destroy_symtab(struct symtab* symtab) {
   if (symtab->strs) free(symtab->strs);
   if (symtab->symbols) free(symtab->symbols);
   if (symtab->hash_table) {
+#ifdef ANDROID
+     free(symtab->hash_table->base);
+#else
      hdestroy_r(symtab->hash_table);
+#endif
      free(symtab->hash_table);
   }
   free(symtab);
@@ -554,7 +613,11 @@ uintptr_t search_symbol(struct symtab* symtab, uintptr_t base,
 
   item.key = (char*) strdup(sym_name);
   item.data = NULL;
+#ifdef ANDROID
+  ret = lfind(item.key, symtab->hash_table->base, symtab->hash_table->nmemb, sizeof(ENTRY), strcmp);
+#else
   hsearch_r(item, FIND, &ret, symtab->hash_table);
+#endif
   if (ret) {
     struct elf_symbol * sym = (struct elf_symbol *)(ret->data);
     uintptr_t rslt = (uintptr_t) ((char*)base + sym->offset);
