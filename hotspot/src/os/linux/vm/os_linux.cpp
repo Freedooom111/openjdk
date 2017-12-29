@@ -1439,7 +1439,11 @@ const char* os::dll_file_extension() { return ".so"; }
 
 // This must be hard coded because it's the system's temporary
 // directory not the java application's temp directory, ala java.io.tmpdir.
+#ifdef ANDROID
+const char* os::get_temp_directory() { return ::getenv("TMP") ? ::getenv("TMP") : "/tmp"; }
+#else
 const char* os::get_temp_directory() { return "/tmp"; }
+#endif
 
 static bool file_exists(const char* filename) {
   struct stat statbuf;
@@ -5951,7 +5955,11 @@ int os::fork_and_exec(char* cmd) {
   } else if (pid == 0) {
     // child process
 
+#ifdef ANDROID
+    execve("/system/bin/sh", (char* const*)argv, environ);
+#else
     execve("/bin/sh", (char* const*)argv, environ);
+#endif
 
     // execve failed
     _exit(-1);
