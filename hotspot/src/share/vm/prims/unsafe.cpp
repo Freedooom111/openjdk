@@ -199,6 +199,27 @@ public:
     : _thread(thread), _obj(obj), _offset(offset) {
   }
 
+#ifdef ANDROID
+  template <typename T>
+  T get() {
+    GuardUnsafeAccess guard(_thread, _obj);
+
+    T x;
+
+    memcpy(&x, addr(), sizeof(T));
+
+    return x;
+  }
+
+  template <typename T>
+  void put(T x) {
+    GuardUnsafeAccess guard(_thread, _obj);
+
+    memcpy(addr(), &x, sizeof(T));
+  }
+
+#else
+
   template <typename T>
   T get() {
     GuardUnsafeAccess guard(_thread, _obj);
@@ -218,7 +239,7 @@ public:
 
     *p = normalize_for_write(x);
   }
-
+#endif
 
   template <typename T>
   T get_volatile() {
